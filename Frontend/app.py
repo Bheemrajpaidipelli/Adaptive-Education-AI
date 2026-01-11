@@ -1,9 +1,9 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="AI Student Assistant")
+st.set_page_config(page_title="EDUAI Student Assistant")
 
-st.title("🎓 AI Student Assistant")
+st.title("🎓 EDUAI – Student Learning Assistant")
 
 level = st.selectbox(
     "Select your education level",
@@ -11,7 +11,7 @@ level = st.selectbox(
 )
 
 uploaded_file = st.file_uploader(
-    "Upload study material (PDF or TXT)",
+    "Upload a study document (PDF or TXT)",
     type=["pdf", "txt"]
 )
 
@@ -21,23 +21,16 @@ if st.button("Get Answer"):
     if not uploaded_file or not question:
         st.warning("Please upload a file and ask a question.")
     else:
-        files = {
-            "file": (uploaded_file.name, uploaded_file, uploaded_file.type)
-        }
-
-        data = {
-            "question": question,
-            "level": level
-        }
-
-        res = requests.post(
+        response = requests.post(
             "http://127.0.0.1:8000/ask",
-            files=files,
-            data=data
+            data={"question": question, "level": level},
+            files={"file": (uploaded_file.name, uploaded_file)}
         )
 
-        if res.status_code == 200:
-            st.success("Answer")
-            st.write(res.json()["answer"])
+        if response.status_code != 200:
+            st.error("Backend error occurred.")
+            st.code(response.text)
         else:
-            st.error(res.text)
+            data = response.json()
+            st.subheader("🎯 Answer")
+            st.write(data["answer"])
