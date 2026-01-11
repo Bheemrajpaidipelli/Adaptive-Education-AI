@@ -1,0 +1,5 @@
+# Large embedding files
+Backend/data/*.txt
+backend/data/*.txt
+# Environment variables
+.env
