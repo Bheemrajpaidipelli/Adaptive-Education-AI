@@ -6,7 +6,7 @@ from config import GROQ_API_KEY
 # ---------- State Definition ----------
 class GraphState(TypedDict):
     question: str
-    context: str
+    context: str   # may be empty
     level: str
     answer: str
 
@@ -21,8 +21,11 @@ llm = ChatGroq(
 # ---------- Nodes ----------
 def validate_explanation(state: GraphState):
     """
-    Internal academic validation (NOT exposed to user)
+    Internal validation (silent, not exposed)
+    Works for both RAG and non-RAG
     """
+    text = state["context"] if state["context"].strip() else state["question"]
+
     prompt = f"""
 You are an academic evaluator.
 
@@ -30,16 +33,18 @@ Check whether the following explanation is conceptually correct.
 Mention strengths and briefly point out if anything important is missing.
 
 Explanation:
-{state["context"]}
+{text}
 """
     llm.invoke(prompt)
-    return {}  # nothing stored
+    return {}  # intentionally discard output
 
 
 def refine_explanation(state: GraphState):
     """
-    Internal refinement (plagiarism-safe, academic)
+    Internal academic refinement
     """
+    text = state["context"] if state["context"].strip() else state["question"]
+
     prompt = f"""
 Rewrite the explanation below to be:
 - Clear and concise
@@ -50,7 +55,7 @@ Rewrite the explanation below to be:
 Do NOT add new information.
 
 Text:
-{state["context"]}
+{text}
 """
     response = llm.invoke(prompt)
     return {"context": response.content}
@@ -58,7 +63,7 @@ Text:
 
 def adapt_by_level(state: GraphState):
     """
-    Final user-visible answer
+    FINAL user-visible answer
     """
     prompt = f"""
 Rewrite the explanation below for a student at this level:

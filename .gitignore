@@ -3,3 +3,17 @@ Backend/data/*.txt
 backend/data/*.txt
 # Environment variables
 .env
+# Virtual environments
+venv/
+env/
+
+# Cache
+__pycache__/
+
+## How to Run
+
+Backend:
+uvicorn main:app --reload
+
+Frontend:
+streamlit run app.py
