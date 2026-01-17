@@ -55,7 +55,7 @@ if st.button("Get Answer"):
                     data = response.json()
                     st.subheader("🎯 Answer")
                     st.write(data.get("answer", "No answer returned"))
-
+                    
             except Exception as e:
                 st.error("Failed to connect to backend.")
                 st.code(str(e))
